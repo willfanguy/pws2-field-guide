@@ -79,15 +79,15 @@ const tierStyle = {
 };
 
 const nozzles = [
-  { name: "0-degree",            color: "#DC2626", use: "Stubborn stains, caked grime",        desc: "Tight beam, maximum pressure. A precision tool." },
-  { name: "15-degree",           color: "#EAB308", use: "Pressure with a slight spread",       desc: "Slightly wider than 0°, still high pressure. Good when 0° feels overly precise." },
-  { name: "25-degree",           color: "#16A34A", use: "Most situations · default workhorse", desc: "The all-rounder. Handles the majority of surfaces. Most-used nozzle in a typical session." },
-  { name: "40-degree",           color: "#E5E7EB", use: "Broad flat surfaces, gentle wash",    desc: "Widest spread, lowest pressure. Good for delicate surfaces or quick passes on flat areas." },
-  { name: "Turbo nozzle",        color: "#DC2626", use: "Broad surfaces, quick passes",        desc: "Spinning beam. More coverage than a 0° at decent power." },
-  { name: "Adaptable nozzle",    color: "#9CA3AF", use: "Universal replacement",               desc: "One nozzle, continuously adjustable angle. Replaces all four fixed-angle nozzles." },
-  { name: "Soap nozzle",         color: "#1F2937", use: "Pre-treating stubborn areas",         desc: "Applies soap before blasting. Soap is free in PWS2 and works with any washer." },
-  { name: "Triple-tip nozzle",   color: "#DC2626", use: "Endgame general cleaning",            desc: "Three 0° nozzles combined into one head. Exclusive to Prime Vista Pro." },
-  { name: "Double turbo nozzle", color: "#DC2626", use: "Endgame distance work",               desc: "Two rotating nozzles in one head. Exclusive to Urban X Stream." },
+  { name: "0-degree",            color: "#DC2626", use: "Stubborn stains, caked grime",        desc: "Tight beam, maximum pressure. A precision tool. Bundled with every washer." },
+  { name: "15-degree",           color: "#EAB308", use: "Pressure with a slight spread",       desc: "Slightly wider than 0°, still high pressure. Bundled with every washer." },
+  { name: "25-degree",           color: "#16A34A", use: "Most situations · default workhorse", desc: "The all-rounder. Bundled with every washer. Most-used nozzle in a typical session." },
+  { name: "40-degree",           color: "#E5E7EB", use: "Broad flat surfaces, gentle wash",    desc: "Widest spread, lowest pressure. Bundled with every washer." },
+  { name: "Turbo nozzle",        color: "#DC2626", use: "Broad surfaces, quick passes",        desc: "Spinning beam. Sold per-washer — $15 (Vista 1500) up to $270 (Urban Stream)." },
+  { name: "Adaptable nozzle",    color: "#9CA3AF", use: "Universal replacement",               desc: "Continuously adjustable angle. Replaces all fixed-angle nozzles. Sold per-washer — $150 (Vista 1500) up to $2,700 (Urban Stream). Buy a new one for each washer you upgrade to." },
+  { name: "Soap nozzle",         color: "#1F2937", use: "Pre-treating stubborn areas",         desc: "Applies soap before blasting. Sold per-washer for Medium tier and up — $375 to $1,350. Soap itself is free." },
+  { name: "Triple-tip nozzle",   color: "#DC2626", use: "Endgame general cleaning",            desc: "Three 0° nozzles combined into one head. Vista Pro exclusive. $2,500." },
+  { name: "Double turbo nozzle", color: "#DC2626", use: "Endgame distance work",               desc: "Two rotating nozzles in one head. Urban X Stream exclusive. $3,000." },
 ];
 
 const swirlforce = {
@@ -178,19 +178,21 @@ const coopTips = [
 
 const economy = [
   { label: "Cash",             swatch: "#378ADD", bg: "#0C1A2E", desc: "The only currency that gates gameplay progression. Buys all washers, nozzles, extensions, and SwirlForce upgrades. There are no separate stat upgrades — buying a higher tier is how you increase pressure and flow." },
-  { label: "PowerWash Points", swatch: "#EF9F27", bg: "#1A1400", desc: "Earned from replays and continued cleaning. Spent on cosmetics and furniture only — no gameplay impact. There's a cap, so don't hoard them." },
-  { label: "Sell-back",        swatch: "#10B981", bg: "#0A1A12", desc: "Old washers and accessories sell for full price — no penalty for upgrading or swapping endgame nozzles. Don't hold onto gear you've outgrown." },
+  { label: "PowerWash Points", swatch: "#EF9F27", bg: "#1A1400", desc: "Cosmetic-only currency, capped at 2,000. Earned from continued cleaning incl. replays. Spent on furniture and cosmetics for your home base — no gameplay impact." },
+  { label: "Maxed Out total",  swatch: "#A8B5C5", bg: "#161616", desc: "Owning every washer + every attachment costs about $70,285 (the 'Maxed Out' achievement). The final Career mission, Mount Rushless, pays ~$30,000 — Career Mode payout covers the full shop on its own." },
+  { label: "Sell-back",        swatch: "#10B981", bg: "#0A1A12", desc: "Old washers and accessories sell for resale value. Manage cash flow by selling gear you've moved past — don't hoard." },
+  { label: "Replays",          swatch: "#D85A30", bg: "#1A0A0A", desc: "Money earns only in Career's first playthrough. Replays of any kind (Career re-runs, Free Play) pay only PowerWash Points, not cash. So the strategy is one good Career run, not grinding." },
 ];
 
 const plan = [
   { step: 1, color: "#10B981", title: "Buy the SwirlForce Surf Ace",                   detail: "$500. Your first job payout covers it. Do this before anything else." },
   { step: 2, color: "#0EA5E9", title: "Pick your brand and commit",                    detail: "Vista = wide coverage and balance. Urban = raw pressure. Both reach the same endgame. Don't switch midway." },
   { step: 3, color: "#0EA5E9", title: "Upgrade to Medium Duty",                        detail: "Vista 2400 ($1,000) or Urban U2 ($1,200). Sell your Light starter for full price when you buy." },
-  { step: 4, color: "#8B5CF6", title: "Buy the Adaptable Nozzle",                      detail: "Replaces juggling four fixed-angle nozzles. Best quality-of-life upgrade in the game. Pays dividends for the rest of the campaign." },
+  { step: 4, color: "#8B5CF6", title: "Buy the Adaptable Nozzle for your current washer", detail: "Replaces juggling four fixed-angle nozzles. $150 for Vista 1500 / $180 for Urban U1. Best quality-of-life upgrade in the game. Heads up: you re-buy a new Adaptable each time you upgrade washers — costs scale up to $2,700 at Urban Stream." },
   { step: 5, color: "#8B5CF6", title: "Get the Long Extension",                        detail: "Reach rooftops and second-story windows without climbing stairs." },
   { step: 6, color: "#F59E0B", title: "Save toward Heavy Duty",                        detail: "Vista 3000 ($5,000) or Urban Max ($6,000). Pure cash gate — no other unlock requirements." },
   { step: 7, color: "#F59E0B", title: "Keep cash on hand for Extra Long Extension",    detail: "One specific mid-game level requires it. Don't blow your savings right before that level comes up." },
-  { step: 8, color: "#EC4899", title: "Push to Professional tier",                     detail: "Vista Pro ($10,000) or Urban Stream ($12,000). Endgame washer plus your brand's exclusive nozzle." },
+  { step: 8, color: "#EC4899", title: "Push to Professional tier",                     detail: "Vista Pro ($10,000) + Triple-tip ($2,500), or Urban Stream ($12,000) + Double turbo ($3,000). Your brand's exclusive endgame nozzle is the main reason to reach Pro." },
 ];
 
 /* ───────────────────────────────────────────────────────────
@@ -204,12 +206,13 @@ const parts = [
 ];
 
 const quickReference = [
-  { partId: "equipment", lookup: "How much does Vista Pro cost?",          answer: "$10,000" },
-  { partId: "equipment", lookup: "What does the Adaptable Nozzle do?",     answer: "Replaces all 4 fixed-angle nozzles" },
+  { partId: "equipment", lookup: "Maxed Out shop total?",                  answer: "≈ $70,285" },
+  { partId: "equipment", lookup: "Triple-tip / Double turbo cost?",        answer: "$2,500 / $3,000" },
+  { partId: "equipment", lookup: "Adaptable Nozzle for Vista 1500?",       answer: "$150 (scales by tier)" },
   { partId: "tactics",   lookup: "Best first nozzle purchase?",            answer: "Adaptable Nozzle" },
   { partId: "tactics",   lookup: "Which extension to skip?",               answer: "Short extension" },
-  { partId: "campaign",  lookup: "What's the very first purchase?",        answer: "SwirlForce Surf Ace · $500" },
-  { partId: "campaign",  lookup: "Are old washers worth selling?",         answer: "Yes — full sell-back, no penalty." },
+  { partId: "campaign",  lookup: "Final Career mission?",                  answer: "Mount Rushless (~$30,000)" },
+  { partId: "campaign",  lookup: "Do replays pay cash?",                   answer: "No — PowerWash Points only" },
 ];
 
 /* ───────────────────────────────────────────────────────────
