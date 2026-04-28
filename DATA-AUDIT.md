@@ -75,14 +75,17 @@ Last audit: 2026-04-28 (post-verification pass)
 - "Old washers and accessories sell for full price" (Steam discussions); moyens.net mentions "resale value" without specifics
 - "Each washer has its own soap nozzle sold separately" (moyens.net + games.gg)
 
-## ⚠️ Still unverified — please check in-game
+## ⚠️ Still unverified — pending playthrough data
 
-- [ ] **"Short Nozzle: $225" on Vista Pro** — moyens.net + gamepadsquire both list this, but it's unclear what it is (a stubby fixed-angle nozzle? or a typo for the Short Extension which is also $375?). If real, what does it do?
-- [ ] **"Extra Long Extension required for Theater level"** — Steam thread mentioned the Theater level needs Soap Dispenser + Extra Long combo. Verify there's actually a level you can't progress without Extra Long.
+- [ ] **"Extra Long Extension required for Theater level"** (Will: can't confirm yet) — verify when you reach the Theater
 - [ ] **"All extensions reduce area-of-effect slightly"** — qualitative claim from PWS1 era; verify it's still true in PWS2
-- [ ] **"Better shop unlocks = host" in co-op** — does the host's gear pool govern what both players can equip? Not yet directly verified.
-- [ ] **"Personal upgrades carry over when joining"** — does your save's gear pool come with you when you join someone else's session?
-- [ ] **Whether Adaptable Nozzle truly replaces all 4 fixed-angle nozzles** (0/15/25/40), or just some
+
+## ✓ Resolved this audit pass (2026-04-28)
+
+- ~~"Short Nozzle: $225 on Vista Pro"~~ → **Resolved as a moyens.net typo.** Will confirmed in-game: this is the Vista Pro **Turbo nozzle = $225**, which fits the per-tier Turbo scaling (1500 $15 / 2400 $75 / 3000 $150 / Pro $225 / Stream $270). Vista Pro Turbo cost now locked in ✅ Verified.
+- ~~"Better shop unlocks = host" in co-op~~ → **Confirmed by Will.** "That's how it works on couch co-op." The session uses the host's gear pool. Locked in ✅ Verified.
+- ~~"Personal upgrades carry over when joining"~~ → covered by the same co-op confirmation.
+- ~~"Whether Adaptable Nozzle truly replaces all 4 fixed-angle nozzles"~~ → **Confirmed by Will.** "It can be used like all 4." Locked in ✅ Verified.
 
 ## 🔵 Opinion / strategic inference (not facts; clearly framed as recommendations)
 
