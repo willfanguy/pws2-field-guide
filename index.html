@@ -3,22 +3,15 @@
 <head>
   <meta charset="utf-8" />
   <title>PWS2 Field Guide · Will & Laura</title>
-
-  <!-- iPad / iOS Safari friendly viewport -->
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-
-  <!-- "Add to Home Screen" makes this launch full-screen, no Safari chrome -->
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="PWS2 Guide" />
   <meta name="theme-color" content="#0F0F0F" />
-
-  <!-- Prevent iOS rubber-band scroll on the body (the inner content still scrolls) -->
   <style>
     html, body { margin: 0; padding: 0; background: #0F0F0F; overscroll-behavior: contain; -webkit-tap-highlight-color: transparent; }
     body { -webkit-text-size-adjust: 100%; }
   </style>
-
   <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -30,7 +23,6 @@
 
 const { useState, useEffect } = React;
 
-/* Persist UI state across iOS Safari tab unloads. */
 function usePersistedState(key, initial) {
   const [v, setV] = useState(() => {
     try {
@@ -57,10 +49,10 @@ const washerLines = {
     accent: "#0369A1",
     bg: "#D9EEFB",
     tiers: [
-      { name: "Prime Vista 1500",  tier: "Light",  cost: "Free",     stars: "—",    note: "Balanced starter. Wide spray output." },
-      { name: "Prime Vista 2400",  tier: "Medium", cost: "$1,000",   stars: "—",    note: "Higher pressure and flow than the 1500." },
-      { name: "Prime Vista 3000",  tier: "Heavy",  cost: "$5,000",   stars: "40 ★", note: "Heavy-duty. Notable jump over Medium tier." },
-      { name: "Prime Vista Pro",   tier: "Pro",    cost: "$10,000",  stars: "90 ★", note: "Top-tier Vista. Unlocks the triple-tip nozzle." },
+      { name: "Prime Vista 1500",  tier: "Light",  cost: "Free",     note: "Balanced starter. Wide spray output." },
+      { name: "Prime Vista 2400",  tier: "Medium", cost: "$1,000",   note: "Higher pressure and flow than the 1500." },
+      { name: "Prime Vista 3000",  tier: "Heavy",  cost: "$5,000",   note: "Heavy-duty. Notable jump over Medium tier." },
+      { name: "Prime Vista Pro",   tier: "Pro",    cost: "$10,000",  note: "Top-tier Vista. Unlocks the triple-tip nozzle." },
     ],
   },
   urban: {
@@ -71,10 +63,10 @@ const washerLines = {
     accent: "#92400E",
     bg: "#FEF1D6",
     tiers: [
-      { name: "Urban X U1",        tier: "Light",  cost: "Free",     stars: "—",    note: "Higher pressure than the 1500, narrower coverage." },
-      { name: "Urban X U2",        tier: "Medium", cost: "$1,200",   stars: "15 ★", note: "Higher pressure than U1. Requires 15 ★." },
-      { name: "Urban X Max",       tier: "Heavy",  cost: "$6,000",   stars: "40 ★", note: "Heavy-duty. High pressure, reduced area coverage." },
-      { name: "Urban X Stream",    tier: "Pro",    cost: "$12,000",  stars: "90 ★", note: "Top-tier Urban. Unlocks the double turbo nozzle." },
+      { name: "Urban X U1",        tier: "Light",  cost: "Free",     note: "Higher pressure than the 1500, narrower coverage." },
+      { name: "Urban X U2",        tier: "Medium", cost: "$1,200",   note: "Higher pressure than U1. $200 more than Vista 2400." },
+      { name: "Urban X Max",       tier: "Heavy",  cost: "$6,000",   note: "Heavy-duty. High pressure, reduced area coverage." },
+      { name: "Urban X Stream",    tier: "Pro",    cost: "$12,000",  note: "Top-tier Urban. Unlocks the double turbo nozzle." },
     ],
   },
 };
@@ -85,12 +77,6 @@ const tierStyle = {
   Heavy:  { border: "#854F0B", label: "#EF9F27", bg: "#140D00" },
   Pro:    { border: "#993C1D", label: "#D85A30", bg: "#150800" },
 };
-
-const washerStats = [
-  { stat: "Pressure",      desc: "PSI of the spray. Determines how fast hard dirt gives way." },
-  { stat: "Flow rate",     desc: "Water volume. Saturates softer materials and rinses faster." },
-  { stat: "Tank capacity", desc: "Reservoir size between refills. Quality-of-life on long jobs." },
-];
 
 const nozzles = [
   { name: "0-degree",            color: "#DC2626", use: "Stubborn stains, caked grime",        desc: "Tight beam, maximum pressure. A precision tool." },
@@ -122,7 +108,7 @@ const extensions = [
 ];
 
 /* ───────────────────────────────────────────────────────────
-   PART II · FIELD TACTICS  (priorities and recommendations)
+   PART II · FIELD TACTICS
    ─────────────────────────────────────────────────────────── */
 
 const brandPros = {
@@ -130,6 +116,7 @@ const brandPros = {
     "Wider spray pattern — fewer passes on broad surfaces",
     "Balanced output is more forgiving on long sessions",
     "Triple-tip endgame nozzle (Vista Pro exclusive)",
+    "$200–$2,000 cheaper per tier than the Urban X equivalent",
   ],
   urban: [
     "Highest raw pressure in the game at every tier",
@@ -145,17 +132,11 @@ const brandCons = {
   ],
   urban: [
     "Narrower coverage means more passes on flat surfaces",
-    "U2 gated behind 15 ★ — slightly delayed Medium tier",
+    "More expensive per tier than the Vista equivalent",
   ],
 };
 
 const brandVerdict = "Both lines reach the same endgame. Within a tier, Vista trades raw power for coverage; Urban trades coverage for power. Tier-up always beats brand swap. Pick one and commit — switching mid-campaign wastes money.";
-
-const statPriority = [
-  { stat: "Pressure",      priority: "First",  color: "#0EA5E9", desc: "Highest impact per dollar. Max this on your washer before buying the next tier." },
-  { stat: "Flow rate",     priority: "Second", color: "#8B5CF6", desc: "Close second. Upgrade right after Pressure is maxed." },
-  { stat: "Tank capacity", priority: "Later",  color: "#F59E0B", desc: "Lowest priority. Comfortable quality-of-life, not essential early." },
-];
 
 const nozzlePriority = [
   { name: "0-degree",            priority: "Core",      pColor: "#0EA5E9" },
@@ -178,7 +159,7 @@ const extensionVerdicts = [
 const swirlforceTactics = [
   "Buy first, before anything else. Your first job's payout covers the $500.",
   "In co-op: assign it to one player and keep it that way. They become the floor-and-wall crew.",
-  "Upgrade the cleaning head before the extensions — it's the highest-impact SwirlForce upgrade.",
+  "Upgrade the cleaning head ($200 for 17-inch, $400 for 20-inch) before the extensions — head size is the highest-impact SwirlForce upgrade.",
 ];
 
 const coopTips = [
@@ -192,45 +173,43 @@ const coopTips = [
 ];
 
 /* ───────────────────────────────────────────────────────────
-   PART III · CAMPAIGN  (the path through Caldera County)
+   PART III · CAMPAIGN
    ─────────────────────────────────────────────────────────── */
 
 const economy = [
-  { label: "Cash",                swatch: "#378ADD", bg: "#0C1A2E", desc: "Buys all gear, washers, nozzles, extensions, and upgrades." },
-  { label: "PowerWash Points ★",   swatch: "#EF9F27", bg: "#1A1400", desc: "Earned from job ratings. Star gates unlock higher tiers — community guides cite 15 ★ for U2, 40 ★ for Heavy, 90 ★ for Pro. Beyond unlocks: cosmetic skins only." },
-  { label: "Career vs. shop",     swatch: "#888",    bg: "#1A1A1A", desc: "Career Mode payouts don't cover the full shop in one run. Free Play replays pay 25% of the original job — pick short ones to close the gap." },
+  { label: "Cash",             swatch: "#378ADD", bg: "#0C1A2E", desc: "The only currency that gates gameplay progression. Buys all washers, nozzles, extensions, and SwirlForce upgrades. There are no separate stat upgrades — buying a higher tier is how you increase pressure and flow." },
+  { label: "PowerWash Points", swatch: "#EF9F27", bg: "#1A1400", desc: "Earned from replays and continued cleaning. Spent on cosmetics and furniture only — no gameplay impact. There's a cap, so don't hoard them." },
+  { label: "Sell-back",        swatch: "#10B981", bg: "#0A1A12", desc: "Old washers and accessories sell for full price — no penalty for upgrading or swapping endgame nozzles. Don't hold onto gear you've outgrown." },
 ];
 
 const plan = [
-  { step: 1,  color: "#10B981", title: "Buy the SwirlForce Surf Ace",                  detail: "$500. Your first job payout covers it. Do this before anything else." },
-  { step: 2,  color: "#0EA5E9", title: "Pick your brand and commit",                   detail: "Vista = wide coverage and balance. Urban = raw pressure. Both reach the same endgame. Don't switch midway." },
-  { step: 3,  color: "#0EA5E9", title: "Upgrade to Medium Duty fast",                  detail: "Vista 2400 ($1,000) or Urban U2 ($1,200 · 15 ★). Sell your starter for full price when you buy." },
-  { step: 4,  color: "#8B5CF6", title: "Max Pressure, then Flow Rate",                 detail: "Don't buy the next tier until both are maxed on your current washer." },
-  { step: 5,  color: "#8B5CF6", title: "Get the Long Extension",                       detail: "Reach rooftops and second-story windows without climbing stairs." },
-  { step: 6,  color: "#8B5CF6", title: "Buy the Adaptable Nozzle",                     detail: "Replaces juggling four fixed nozzles. Pays dividends for the rest of the game." },
-  { step: 7,  color: "#F59E0B", title: "Save toward Heavy Duty (40 ★)",                detail: "Vista 3000 ($5,000) or Urban Max ($6,000). Keep upgrading stats while you save." },
-  { step: 8,  color: "#F59E0B", title: "Keep cash on hand for Extra Long Extension",   detail: "One specific mid-game level requires it. Don't blow your savings right before." },
-  { step: 9,  color: "#EC4899", title: "Push to Professional tier (90 ★)",             detail: "Vista Pro ($10,000) or Urban Stream ($12,000). Endgame goal." },
-  { step: 10, color: "#EC4899", title: "Replay Free Play to top up cash",              detail: "Career Mode payout doesn't cover the full shop. Free Play replays pay 25% of the original job — pick short ones to close any remaining gap." },
+  { step: 1, color: "#10B981", title: "Buy the SwirlForce Surf Ace",                   detail: "$500. Your first job payout covers it. Do this before anything else." },
+  { step: 2, color: "#0EA5E9", title: "Pick your brand and commit",                    detail: "Vista = wide coverage and balance. Urban = raw pressure. Both reach the same endgame. Don't switch midway." },
+  { step: 3, color: "#0EA5E9", title: "Upgrade to Medium Duty",                        detail: "Vista 2400 ($1,000) or Urban U2 ($1,200). Sell your Light starter for full price when you buy." },
+  { step: 4, color: "#8B5CF6", title: "Buy the Adaptable Nozzle",                      detail: "Replaces juggling four fixed-angle nozzles. Best quality-of-life upgrade in the game. Pays dividends for the rest of the campaign." },
+  { step: 5, color: "#8B5CF6", title: "Get the Long Extension",                        detail: "Reach rooftops and second-story windows without climbing stairs." },
+  { step: 6, color: "#F59E0B", title: "Save toward Heavy Duty",                        detail: "Vista 3000 ($5,000) or Urban Max ($6,000). Pure cash gate — no other unlock requirements." },
+  { step: 7, color: "#F59E0B", title: "Keep cash on hand for Extra Long Extension",    detail: "One specific mid-game level requires it. Don't blow your savings right before that level comes up." },
+  { step: 8, color: "#EC4899", title: "Push to Professional tier",                     detail: "Vista Pro ($10,000) or Urban Stream ($12,000). Endgame washer plus your brand's exclusive nozzle." },
 ];
 
 /* ───────────────────────────────────────────────────────────
-   NAVIGATION + QUICK REFERENCE
+   NAV
    ─────────────────────────────────────────────────────────── */
 
 const parts = [
   { id: "equipment", numeral: "I",   label: "Equipment", color: "#A8B5C5", bg: "#E8EDF3", accent: "#3F4C5F", subtitle: "Catalog of every washer, nozzle, and accessory." },
   { id: "tactics",   numeral: "II",  label: "Tactics",   color: "#D9B36A", bg: "#F3EAD2", accent: "#6B5320", subtitle: "Priorities and verdicts on what's worth buying." },
-  { id: "campaign",  numeral: "III", label: "Campaign",  color: "#D27C9E", bg: "#F2DDE6", accent: "#7A2C4D", subtitle: "The 10-step optimal path and the economy." },
+  { id: "campaign",  numeral: "III", label: "Campaign",  color: "#D27C9E", bg: "#F2DDE6", accent: "#7A2C4D", subtitle: "The 8-step optimal path and the economy." },
 ];
 
 const quickReference = [
-  { partId: "equipment", lookup: "How much does Vista Pro cost?",        answer: "$10,000 · 90 ★" },
-  { partId: "equipment", lookup: "What does the Adaptable Nozzle do?",   answer: "Replaces all 4 fixed-angle nozzles" },
-  { partId: "tactics",   lookup: "First stat to max on your washer?",    answer: "Pressure, then Flow Rate" },
-  { partId: "tactics",   lookup: "Which extension to skip?",             answer: "Short extension" },
-  { partId: "campaign",  lookup: "What's the very first purchase?",      answer: "SwirlForce Surf Ace · $500" },
-  { partId: "campaign",  lookup: "Cash vs. ★ — which buys gear?",        answer: "Cash. Stars only gate tiers + cosmetics." },
+  { partId: "equipment", lookup: "How much does Vista Pro cost?",          answer: "$10,000" },
+  { partId: "equipment", lookup: "What does the Adaptable Nozzle do?",     answer: "Replaces all 4 fixed-angle nozzles" },
+  { partId: "tactics",   lookup: "Best first nozzle purchase?",            answer: "Adaptable Nozzle" },
+  { partId: "tactics",   lookup: "Which extension to skip?",               answer: "Short extension" },
+  { partId: "campaign",  lookup: "What's the very first purchase?",        answer: "SwirlForce Surf Ace · $500" },
+  { partId: "campaign",  lookup: "Are old washers worth selling?",         answer: "Yes — full sell-back, no penalty." },
 ];
 
 /* ───────────────────────────────────────────────────────────
@@ -280,14 +259,11 @@ function PWS2Guide() {
         .pws-row  { transition: border-color 0.15s, transform 0.15s; }
         .pws-row:hover { border-color: #444 !important; }
         .pws-card-hover:hover { transform: translateX(3px); }
-        .bar-fill { transition: width 0.6s ease; border-radius: 2px; height: 6px; }
       `}</style>
 
-      {/* ── Cover / Header ── */}
+      {/* Cover */}
       <div style={{ background: "#1A1A1A", borderBottom: "1px solid #2A2A2A", padding: "28px 28px 22px" }}>
-        <div style={{ ...eyebrow(), marginBottom: 8 }}>
-          Field Guide · Caldera County · Couch Co-op Edition
-        </div>
+        <div style={{ ...eyebrow(), marginBottom: 8 }}>Field Guide · Caldera County · Couch Co-op Edition</div>
         <h1 style={{ fontFamily: fontDisp, fontSize: "clamp(22px, 4vw, 36px)", fontWeight: 900, margin: "0 0 6px", letterSpacing: "-0.02em", lineHeight: 1.1 }}>
           Will & Laura's Guide to<br /><span style={{ color: "#888" }}>PowerWash Simulator 2</span>
         </h1>
@@ -303,7 +279,7 @@ function PWS2Guide() {
         </div>
       </div>
 
-      {/* ── Part Nav ── */}
+      {/* Part Nav */}
       <div style={{ display: "flex", borderBottom: "1px solid #2A2A2A" }}>
         {parts.map(p => (
           <button key={p.id} className="pws-btn" onClick={() => setPart(p.id)}
@@ -312,8 +288,7 @@ function PWS2Guide() {
               background: part === p.id ? p.bg : "transparent",
               color: part === p.id ? p.accent : "#666",
               borderBottom: part === p.id ? `3px solid ${p.color}` : "3px solid transparent",
-              borderTop: "none", borderLeft: "none",
-              borderRight: "1px solid #2A2A2A",
+              borderTop: "none", borderLeft: "none", borderRight: "1px solid #2A2A2A",
               fontFamily: fontMono, letterSpacing: "0.12em", textTransform: "uppercase",
               display: "flex", flexDirection: "column", alignItems: "center", gap: 2,
             }}>
@@ -323,10 +298,10 @@ function PWS2Guide() {
         ))}
       </div>
 
-      {/* ── Body ── */}
+      {/* Body */}
       <div style={{ padding: "26px 24px 32px", maxWidth: 880, margin: "0 auto" }}>
 
-        {/* PART I · EQUIPMENT */}
+        {/* PART I */}
         {part === "equipment" && (
           <div>
             {partHeader("I", "Equipment", "Catalog of every washer, nozzle, and accessory in Caldera County. Specs only — no opinions.", "#A8B5C5")}
@@ -379,22 +354,14 @@ function PWS2Guide() {
                     <div style={{ fontFamily: fontMono, fontSize: 10, color: ts.label, letterSpacing: "0.1em", textTransform: "uppercase", minWidth: 50 }}>{w.tier}</div>
                     <div style={{ fontFamily: fontDisp, fontSize: 14, fontWeight: 700, color: "#F0E8D8", flex: "1 0 140px" }}>{w.name}</div>
                     <div style={{ fontFamily: fontMono, fontSize: 12, color: line.color, minWidth: 64 }}>{w.cost}</div>
-                    <div style={{ fontFamily: fontMono, fontSize: 10, color: "#444", minWidth: 48 }}>{w.stars}</div>
                     <div style={{ fontSize: 11, color: "#888", flex: "2 0 160px", lineHeight: 1.5, fontFamily: fontBody }}>{w.note}</div>
                   </div>
                 );
               })}
             </div>
-            <div style={{ fontFamily: fontMono, fontSize: 10, color: "#444", letterSpacing: "0.04em" }}>↳ Old washers sell for full price.</div>
-
-            <div style={{ ...eyebrow(), marginTop: 18, marginBottom: 8 }}>Per-washer stat upgrades · what they do</div>
-            <div style={{ background: "#161616", border: "1px solid #2A2A2A", borderRadius: 5, overflow: "hidden" }}>
-              {washerStats.map((s, i) => (
-                <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 14, padding: "11px 14px", borderBottom: i < washerStats.length - 1 ? "1px solid #2A2A2A" : "none", flexWrap: "wrap" }}>
-                  <div style={{ fontFamily: fontDisp, fontSize: 14, fontWeight: 700, color: "#CFCFCF", minWidth: 110 }}>{s.stat}</div>
-                  <div style={{ fontSize: 12, color: "#999", flex: 1, lineHeight: 1.55, minWidth: 200, fontFamily: fontBody }}>{s.desc}</div>
-                </div>
-              ))}
+            <div style={{ fontFamily: fontMono, fontSize: 10, color: "#444", letterSpacing: "0.04em", lineHeight: 1.6 }}>
+              ↳ Old washers sell for full price.<br />
+              ↳ Pure cash gate — no star or stat-upgrade requirements in PWS2.
             </div>
 
             {sectionHeader("2", "Nozzles", "#A8B5C5")}
@@ -450,18 +417,17 @@ function PWS2Guide() {
           </div>
         )}
 
-        {/* PART II · TACTICS */}
+        {/* PART II */}
         {part === "tactics" && (
           <div>
             {partHeader("II", "Field Tactics", "Priorities, verdicts, and what to do with the equipment from Part I.", "#D9B36A")}
 
             <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 14, marginBottom: 4, fontFamily: fontMono, fontSize: 10, color: "#666", letterSpacing: "0.08em" }}>
               <span>§1 Brand choice</span><span>·</span>
-              <span>§2 Stat priority</span><span>·</span>
-              <span>§3 Nozzle priority</span><span>·</span>
-              <span>§4 Extensions</span><span>·</span>
-              <span>§5 SwirlForce</span><span>·</span>
-              <span>§6 Couch co-op</span>
+              <span>§2 Nozzle priority</span><span>·</span>
+              <span>§3 Extensions</span><span>·</span>
+              <span>§4 SwirlForce</span><span>·</span>
+              <span>§5 Couch co-op</span>
             </div>
 
             {sectionHeader("1", "Choose your brand and commit", "#D9B36A")}
@@ -498,19 +464,7 @@ function PWS2Guide() {
               {brandVerdict}
             </div>
 
-            {sectionHeader("2", "Stat upgrade priority", "#D9B36A")}
-            <div style={{ background: "#161616", border: "1px solid #2A2A2A", borderRadius: 5, overflow: "hidden" }}>
-              {statPriority.map((su, i) => (
-                <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 14, padding: "12px 14px", borderBottom: i < statPriority.length - 1 ? "1px solid #2A2A2A" : "none", flexWrap: "wrap" }}>
-                  <div style={{ fontFamily: fontDisp, fontSize: 14, fontWeight: 700, color: su.color, minWidth: 100 }}>{su.stat}</div>
-                  <span style={{ fontFamily: fontMono, fontSize: 10, color: su.color, background: su.color + "18", padding: "2px 8px", borderRadius: 3, letterSpacing: "0.06em", alignSelf: "center", minWidth: 60, textAlign: "center" }}>{su.priority}</span>
-                  <div style={{ fontSize: 12, color: "#999", flex: 1, lineHeight: 1.55, minWidth: 200, fontFamily: fontBody }}>{su.desc}</div>
-                </div>
-              ))}
-            </div>
-            <div style={{ fontFamily: fontMono, fontSize: 10, color: "#444", marginTop: 8, letterSpacing: "0.04em" }}>↳ Max Pressure and Flow Rate before buying the next tier.</div>
-
-            {sectionHeader("3", "Nozzle priorities", "#D9B36A")}
+            {sectionHeader("2", "Nozzle priorities", "#D9B36A")}
             <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
               {nozzlePriority.map((n, i) => (
                 <div key={i} className="pws-row pws-card-hover" style={{ background: "#161616", border: "1px solid #2A2A2A", borderLeft: `3px solid ${n.pColor}`, borderRadius: "0 5px 5px 0", padding: "10px 14px" }}>
@@ -523,7 +477,7 @@ function PWS2Guide() {
               ))}
             </div>
 
-            {sectionHeader("4", "Extension verdicts", "#D9B36A")}
+            {sectionHeader("3", "Extension verdicts", "#D9B36A")}
             <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
               {extensionVerdicts.map((e, i) => (
                 <div key={i} className="pws-row pws-card-hover" style={{ background: "#161616", border: "1px solid #2A2A2A", borderLeft: `3px solid ${e.vColor}`, borderRadius: "0 5px 5px 0", padding: "11px 14px" }}>
@@ -536,7 +490,7 @@ function PWS2Guide() {
               ))}
             </div>
 
-            {sectionHeader("5", "SwirlForce strategy", "#D9B36A")}
+            {sectionHeader("4", "SwirlForce strategy", "#D9B36A")}
             <ol style={{ margin: 0, padding: 0, listStyle: "none", display: "flex", flexDirection: "column", gap: 5 }}>
               {swirlforceTactics.map((t, i) => (
                 <li key={i} style={{ background: "#161616", border: "1px solid #2A2A2A", borderLeft: "3px solid #10B981", borderRadius: "0 5px 5px 0", padding: "11px 14px", display: "flex", gap: 12, alignItems: "flex-start" }}>
@@ -546,7 +500,7 @@ function PWS2Guide() {
               ))}
             </ol>
 
-            {sectionHeader("6", "Couch co-op tactics", "#D9B36A")}
+            {sectionHeader("5", "Couch co-op tactics", "#D9B36A")}
             <div style={{ background: "#180900", border: "1px solid #F9731644", borderRadius: 5, padding: "13px 16px", marginBottom: 10 }}>
               <div style={{ ...eyebrow("#F97316"), marginBottom: 6 }}>Same couch, same screen</div>
               <p style={{ fontSize: 13, color: "#AAA", lineHeight: 1.6, margin: 0, fontFamily: fontBody }}>
@@ -567,17 +521,17 @@ function PWS2Guide() {
           </div>
         )}
 
-        {/* PART III · CAMPAIGN */}
+        {/* PART III */}
         {part === "campaign" && (
           <div>
             {partHeader("III", "Campaign", "The most efficient path through Caldera County, plus the economy that constrains it.", "#D27C9E")}
 
             <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 14, marginBottom: 4, fontFamily: fontMono, fontSize: 10, color: "#666", letterSpacing: "0.08em" }}>
               <span>§1 Economy</span><span>·</span>
-              <span>§2 The 10-step path</span>
+              <span>§2 The 8-step path</span>
             </div>
 
-            {sectionHeader("1", "Economy: cash, stars, and the gap", "#D27C9E")}
+            {sectionHeader("1", "Economy", "#D27C9E")}
             <div style={{ display: "flex", flexDirection: "column", gap: 5, marginBottom: 6 }}>
               {economy.map((e, i) => (
                 <div key={i} style={{ background: e.bg, border: `1px solid ${e.swatch}33`, borderRadius: 5, padding: "11px 14px", display: "flex", gap: 14, alignItems: "flex-start", flexWrap: "wrap" }}>
@@ -587,7 +541,7 @@ function PWS2Guide() {
               ))}
             </div>
 
-            {sectionHeader("2", "The 10-step optimal path", "#D27C9E")}
+            {sectionHeader("2", "The 8-step optimal path", "#D27C9E")}
             <p style={{ fontSize: 11, color: "#666", margin: "0 0 12px", fontFamily: fontMono, letterSpacing: "0.04em" }}>↳ Deviating isn't wrong — but this is the most efficient run.</p>
             <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
               {plan.map((p) => (
@@ -603,7 +557,7 @@ function PWS2Guide() {
           </div>
         )}
 
-        {/* Quick Reference (visible on every part) */}
+        {/* Quick Reference */}
         <div style={{ marginTop: 32, borderTop: "1px solid #2A2A2A", paddingTop: 22 }}>
           <div style={{ ...eyebrow(), marginBottom: 14 }}>Quick reference · jump to a part</div>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: 8, marginBottom: 18 }}>
