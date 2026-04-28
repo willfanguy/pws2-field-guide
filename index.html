@@ -1,0 +1,654 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>PWS2 Field Guide · Will & Laura</title>
+
+  <!-- iPad / iOS Safari friendly viewport -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+
+  <!-- "Add to Home Screen" makes this launch full-screen, no Safari chrome -->
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="PWS2 Guide" />
+  <meta name="theme-color" content="#0F0F0F" />
+
+  <!-- Prevent iOS rubber-band scroll on the body (the inner content still scrolls) -->
+  <style>
+    html, body { margin: 0; padding: 0; background: #0F0F0F; overscroll-behavior: contain; -webkit-tap-highlight-color: transparent; }
+    body { -webkit-text-size-adjust: 100%; }
+  </style>
+
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel" data-presets="react">
+
+const { useState, useEffect } = React;
+
+/* Persist UI state across iOS Safari tab unloads. */
+function usePersistedState(key, initial) {
+  const [v, setV] = useState(() => {
+    try {
+      const raw = localStorage.getItem(key);
+      return raw !== null ? JSON.parse(raw) : initial;
+    } catch (e) { return initial; }
+  });
+  useEffect(() => {
+    try { localStorage.setItem(key, JSON.stringify(v)); } catch (e) {}
+  }, [v]);
+  return [v, setV];
+}
+
+/* ───────────────────────────────────────────────────────────
+   PART I · EQUIPMENT  (pure reference — no opinions)
+   ─────────────────────────────────────────────────────────── */
+
+const washerLines = {
+  vista: {
+    name: "Prime Vista",
+    tagline: "Wider spray pattern · balanced output",
+    verdict: "Best for: Coverage & Balance",
+    color: "#0EA5E9",
+    accent: "#0369A1",
+    bg: "#D9EEFB",
+    tiers: [
+      { name: "Prime Vista 1500",  tier: "Light",  cost: "Free",     stars: "—",    note: "Balanced starter. Wide spray output." },
+      { name: "Prime Vista 2400",  tier: "Medium", cost: "$1,000",   stars: "—",    note: "Higher pressure and flow than the 1500." },
+      { name: "Prime Vista 3000",  tier: "Heavy",  cost: "$5,000",   stars: "40 ★", note: "Heavy-duty. Notable jump over Medium tier." },
+      { name: "Prime Vista Pro",   tier: "Pro",    cost: "$10,000",  stars: "90 ★", note: "Top-tier Vista. Unlocks the triple-tip nozzle." },
+    ],
+  },
+  urban: {
+    name: "Urban X",
+    tagline: "Higher raw pressure · narrower coverage",
+    verdict: "Best for: Raw Power & Precision",
+    color: "#F59E0B",
+    accent: "#92400E",
+    bg: "#FEF1D6",
+    tiers: [
+      { name: "Urban X U1",        tier: "Light",  cost: "Free",     stars: "—",    note: "Higher pressure than the 1500, narrower coverage." },
+      { name: "Urban X U2",        tier: "Medium", cost: "$1,200",   stars: "15 ★", note: "Higher pressure than U1. Requires 15 ★." },
+      { name: "Urban X Max",       tier: "Heavy",  cost: "$6,000",   stars: "40 ★", note: "Heavy-duty. High pressure, reduced area coverage." },
+      { name: "Urban X Stream",    tier: "Pro",    cost: "$12,000",  stars: "90 ★", note: "Top-tier Urban. Unlocks the double turbo nozzle." },
+    ],
+  },
+};
+
+const tierStyle = {
+  Light:  { border: "#333",    label: "#777",    bg: "#161616" },
+  Medium: { border: "#185FA5", label: "#378ADD", bg: "#0A1520" },
+  Heavy:  { border: "#854F0B", label: "#EF9F27", bg: "#140D00" },
+  Pro:    { border: "#993C1D", label: "#D85A30", bg: "#150800" },
+};
+
+const washerStats = [
+  { stat: "Pressure",      desc: "PSI of the spray. Determines how fast hard dirt gives way." },
+  { stat: "Flow rate",     desc: "Water volume. Saturates softer materials and rinses faster." },
+  { stat: "Tank capacity", desc: "Reservoir size between refills. Quality-of-life on long jobs." },
+];
+
+const nozzles = [
+  { name: "0-degree",            color: "#DC2626", use: "Stubborn stains, caked grime",        desc: "Tight beam, maximum pressure. A precision tool." },
+  { name: "15-degree",           color: "#EAB308", use: "Pressure with a slight spread",       desc: "Slightly wider than 0°, still high pressure. Good when 0° feels overly precise." },
+  { name: "25-degree",           color: "#16A34A", use: "Most situations · default workhorse", desc: "The all-rounder. Handles the majority of surfaces. Most-used nozzle in a typical session." },
+  { name: "40-degree",           color: "#E5E7EB", use: "Broad flat surfaces, gentle wash",    desc: "Widest spread, lowest pressure. Good for delicate surfaces or quick passes on flat areas." },
+  { name: "Turbo nozzle",        color: "#DC2626", use: "Broad surfaces, quick passes",        desc: "Spinning beam. More coverage than a 0° at decent power." },
+  { name: "Adaptable nozzle",    color: "#9CA3AF", use: "Universal replacement",               desc: "One nozzle, continuously adjustable angle. Replaces all four fixed-angle nozzles." },
+  { name: "Soap nozzle",         color: "#1F2937", use: "Pre-treating stubborn areas",         desc: "Applies soap before blasting. Soap is free in PWS2 and works with any washer." },
+  { name: "Triple-tip nozzle",   color: "#DC2626", use: "Endgame general cleaning",            desc: "Three 0° nozzles combined into one head. Exclusive to Prime Vista Pro." },
+  { name: "Double turbo nozzle", color: "#DC2626", use: "Endgame distance work",               desc: "Two rotating nozzles in one head. Exclusive to Urban X Stream." },
+];
+
+const swirlforce = {
+  what: "A surface cleaner with spinning brushes — a separate tool from the pressure washer. Useless at range, exceptional on large flat surfaces (parking lots, floors, exterior walls).",
+  cost: "$500",
+  upgrades: [
+    { name: "17-inch head ($200)",     desc: "First head-size upgrade. Wider per-pass coverage." },
+    { name: "20-inch head ($400)",     desc: "Maximum head size. Significantly faster on large jobs." },
+    { name: "Short extension ($100)",  desc: "First reach upgrade for the SwirlForce." },
+    { name: "Long extension ($300)",   desc: "Maximum reach for the SwirlForce." },
+  ],
+};
+
+const extensions = [
+  { name: "Short extension",      desc: "Marginal reach gain at near range." },
+  { name: "Long extension",       desc: "Reaches rooftops and second-story windows from the ground." },
+  { name: "Extra long extension", desc: "Maximum reach. Required for one specific mid-game level." },
+];
+
+/* ───────────────────────────────────────────────────────────
+   PART II · FIELD TACTICS  (priorities and recommendations)
+   ─────────────────────────────────────────────────────────── */
+
+const brandPros = {
+  vista: [
+    "Wider spray pattern — fewer passes on broad surfaces",
+    "Balanced output is more forgiving on long sessions",
+    "Triple-tip endgame nozzle (Vista Pro exclusive)",
+  ],
+  urban: [
+    "Highest raw pressure in the game at every tier",
+    "Cuts through caked grime faster than Vista",
+    "Double turbo endgame nozzle (Urban X Stream exclusive)",
+  ],
+};
+
+const brandCons = {
+  vista: [
+    "Lower raw pressure than Urban at every tier",
+    "Slower on heavy caked grime — Urban cuts through faster",
+  ],
+  urban: [
+    "Narrower coverage means more passes on flat surfaces",
+    "U2 gated behind 15 ★ — slightly delayed Medium tier",
+  ],
+};
+
+const brandVerdict = "Both lines reach the same endgame. Within a tier, Vista trades raw power for coverage; Urban trades coverage for power. Tier-up always beats brand swap. Pick one and commit — switching mid-campaign wastes money.";
+
+const statPriority = [
+  { stat: "Pressure",      priority: "First",  color: "#0EA5E9", desc: "Highest impact per dollar. Max this on your washer before buying the next tier." },
+  { stat: "Flow rate",     priority: "Second", color: "#8B5CF6", desc: "Close second. Upgrade right after Pressure is maxed." },
+  { stat: "Tank capacity", priority: "Later",  color: "#F59E0B", desc: "Lowest priority. Comfortable quality-of-life, not essential early." },
+];
+
+const nozzlePriority = [
+  { name: "0-degree",            priority: "Core",      pColor: "#0EA5E9" },
+  { name: "15-degree",           priority: "Useful",    pColor: "#8B5CF6" },
+  { name: "25-degree",           priority: "Core",      pColor: "#0EA5E9", note: "The default workhorse — your most-used nozzle in a typical session." },
+  { name: "40-degree",           priority: "Useful",    pColor: "#8B5CF6" },
+  { name: "Turbo nozzle",        priority: "Useful",    pColor: "#8B5CF6" },
+  { name: "Adaptable nozzle",    priority: "Get it",    pColor: "#10B981", note: "Best quality-of-life upgrade in the game — replaces juggling four fixed nozzles." },
+  { name: "Soap nozzle",         priority: "Mid-game",  pColor: "#F59E0B", note: "Works with any washer. Soap itself is free." },
+  { name: "Triple-tip nozzle",   priority: "Late-game", pColor: "#EC4899", note: "Vista Pro exclusive." },
+  { name: "Double turbo nozzle", priority: "Late-game", pColor: "#EC4899", note: "Urban X Stream exclusive." },
+];
+
+const extensionVerdicts = [
+  { name: "Short extension",      verdict: "Skip",     vColor: "#666",    rationale: "At point-blank range you shouldn't be using an extension anyway. Efficiency gain doesn't justify the cost." },
+  { name: "Long extension",       verdict: "Buy it",   vColor: "#10B981", rationale: "Eliminates trips upstairs on any vertical level. Good investment at any washer tier." },
+  { name: "Extra long extension", verdict: "Required", vColor: "#F59E0B", rationale: "One mid-game level mandates it. Keep cash on hand when you're getting close — don't buy just before." },
+];
+
+const swirlforceTactics = [
+  "Buy first, before anything else. Your first job's payout covers the $500.",
+  "In co-op: assign it to one player and keep it that way. They become the floor-and-wall crew.",
+  "Upgrade the cleaning head before the extensions — it's the highest-impact SwirlForce upgrade.",
+];
+
+const coopTips = [
+  { icon: "🏠", title: "Better shop unlocks = host",            desc: "The session uses the host's gear pool. Personal upgrades carry over when joining, but you can only equip what the host has unlocked." },
+  { icon: "✂️", title: "Split roles by surface type",            desc: "One runs the SwirlForce on floors, walls, flat expanses. The other handles nozzle work on vehicles, furniture, and geometry." },
+  { icon: "📢", title: "Call your zones out loud",              desc: "On a shared screen it's easy to double-clean the same patch. A quick 'I've got the roof' keeps you both in flow." },
+  { icon: "💰", title: "Coordinate early purchases",            desc: "Same job earnings. Divide first buys: one of you grabs the SwirlForce, the other saves toward Medium Duty." },
+  { icon: "🧼", title: "Tag-team soap application",             desc: "One player pre-soaps stubborn sections, the other follows immediately with a pressure blast." },
+  { icon: "📋", title: "Use the Task List as a shared list",    desc: "Both of you see the same Task List. Knock small items first (benches, bins, signs, tires), then work floor-to-roof." },
+  { icon: "🛋️", title: "Work the same zone, not opposite ends", desc: "On a shared camera you're both cleaning what's on screen. Stay in the same zone so visible progress reflects both of you." },
+];
+
+/* ───────────────────────────────────────────────────────────
+   PART III · CAMPAIGN  (the path through Caldera County)
+   ─────────────────────────────────────────────────────────── */
+
+const economy = [
+  { label: "Cash",                swatch: "#378ADD", bg: "#0C1A2E", desc: "Buys all gear, washers, nozzles, extensions, and upgrades." },
+  { label: "PowerWash Points ★",   swatch: "#EF9F27", bg: "#1A1400", desc: "Earned from job ratings. Star gates unlock higher tiers — community guides cite 15 ★ for U2, 40 ★ for Heavy, 90 ★ for Pro. Beyond unlocks: cosmetic skins only." },
+  { label: "Career vs. shop",     swatch: "#888",    bg: "#1A1A1A", desc: "Career Mode payouts don't cover the full shop in one run. Free Play replays pay 25% of the original job — pick short ones to close the gap." },
+];
+
+const plan = [
+  { step: 1,  color: "#10B981", title: "Buy the SwirlForce Surf Ace",                  detail: "$500. Your first job payout covers it. Do this before anything else." },
+  { step: 2,  color: "#0EA5E9", title: "Pick your brand and commit",                   detail: "Vista = wide coverage and balance. Urban = raw pressure. Both reach the same endgame. Don't switch midway." },
+  { step: 3,  color: "#0EA5E9", title: "Upgrade to Medium Duty fast",                  detail: "Vista 2400 ($1,000) or Urban U2 ($1,200 · 15 ★). Sell your starter for full price when you buy." },
+  { step: 4,  color: "#8B5CF6", title: "Max Pressure, then Flow Rate",                 detail: "Don't buy the next tier until both are maxed on your current washer." },
+  { step: 5,  color: "#8B5CF6", title: "Get the Long Extension",                       detail: "Reach rooftops and second-story windows without climbing stairs." },
+  { step: 6,  color: "#8B5CF6", title: "Buy the Adaptable Nozzle",                     detail: "Replaces juggling four fixed nozzles. Pays dividends for the rest of the game." },
+  { step: 7,  color: "#F59E0B", title: "Save toward Heavy Duty (40 ★)",                detail: "Vista 3000 ($5,000) or Urban Max ($6,000). Keep upgrading stats while you save." },
+  { step: 8,  color: "#F59E0B", title: "Keep cash on hand for Extra Long Extension",   detail: "One specific mid-game level requires it. Don't blow your savings right before." },
+  { step: 9,  color: "#EC4899", title: "Push to Professional tier (90 ★)",             detail: "Vista Pro ($10,000) or Urban Stream ($12,000). Endgame goal." },
+  { step: 10, color: "#EC4899", title: "Replay Free Play to top up cash",              detail: "Career Mode payout doesn't cover the full shop. Free Play replays pay 25% of the original job — pick short ones to close any remaining gap." },
+];
+
+/* ───────────────────────────────────────────────────────────
+   NAVIGATION + QUICK REFERENCE
+   ─────────────────────────────────────────────────────────── */
+
+const parts = [
+  { id: "equipment", numeral: "I",   label: "Equipment", color: "#A8B5C5", bg: "#E8EDF3", accent: "#3F4C5F", subtitle: "Catalog of every washer, nozzle, and accessory." },
+  { id: "tactics",   numeral: "II",  label: "Tactics",   color: "#D9B36A", bg: "#F3EAD2", accent: "#6B5320", subtitle: "Priorities and verdicts on what's worth buying." },
+  { id: "campaign",  numeral: "III", label: "Campaign",  color: "#D27C9E", bg: "#F2DDE6", accent: "#7A2C4D", subtitle: "The 10-step optimal path and the economy." },
+];
+
+const quickReference = [
+  { partId: "equipment", lookup: "How much does Vista Pro cost?",        answer: "$10,000 · 90 ★" },
+  { partId: "equipment", lookup: "What does the Adaptable Nozzle do?",   answer: "Replaces all 4 fixed-angle nozzles" },
+  { partId: "tactics",   lookup: "First stat to max on your washer?",    answer: "Pressure, then Flow Rate" },
+  { partId: "tactics",   lookup: "Which extension to skip?",             answer: "Short extension" },
+  { partId: "campaign",  lookup: "What's the very first purchase?",      answer: "SwirlForce Surf Ace · $500" },
+  { partId: "campaign",  lookup: "Cash vs. ★ — which buys gear?",        answer: "Cash. Stars only gate tiers + cosmetics." },
+];
+
+/* ───────────────────────────────────────────────────────────
+   STYLE TOKENS
+   ─────────────────────────────────────────────────────────── */
+
+const fontMono = "'IBM Plex Mono', monospace";
+const fontDisp = "'Playfair Display', serif";
+const fontBody = "'Georgia', 'Times New Roman', serif";
+
+const eyebrow = (color = "#555") => ({
+  fontFamily: fontMono, fontSize: 10, letterSpacing: "0.2em",
+  color, textTransform: "uppercase",
+});
+
+const sectionHeader = (numeral, title, color) => (
+  <div style={{ display: "flex", alignItems: "baseline", gap: 12, marginTop: 26, marginBottom: 12, paddingBottom: 8, borderBottom: `1px solid ${color}33` }}>
+    <span style={{ fontFamily: fontMono, fontSize: 11, color, letterSpacing: "0.1em" }}>§ {numeral}</span>
+    <span style={{ fontFamily: fontDisp, fontSize: 18, fontWeight: 700, color: "#F0E8D8", letterSpacing: "-0.01em" }}>{title}</span>
+  </div>
+);
+
+const partHeader = (numeral, label, subtitle, color) => (
+  <div style={{ marginBottom: 4 }}>
+    <div style={{ ...eyebrow(color), marginBottom: 6 }}>Part {numeral}</div>
+    <div style={{ fontFamily: fontDisp, fontSize: 26, fontWeight: 900, color: "#F0E8D8", letterSpacing: "-0.02em", lineHeight: 1.05 }}>{label}</div>
+    <div style={{ fontSize: 13, color: "#777", marginTop: 6, fontFamily: fontBody }}>{subtitle}</div>
+  </div>
+);
+
+/* ───────────────────────────────────────────────────────────
+   COMPONENT
+   ─────────────────────────────────────────────────────────── */
+
+function PWS2Guide() {
+  const [part, setPart]   = usePersistedState("pws2.part", "equipment");
+  const [brand, setBrand] = usePersistedState("pws2.brand", "vista");
+
+  const line = washerLines[brand];
+
+  return (
+    <div style={{ fontFamily: fontBody, background: "#0F0F0F", minHeight: "100vh", color: "#F5F0E8" }}>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=IBM+Plex+Mono:wght@400;500&display=swap');
+        * { box-sizing: border-box; }
+        .pws-btn  { cursor: pointer; border: none; transition: all 0.2s; }
+        .pws-row  { transition: border-color 0.15s, transform 0.15s; }
+        .pws-row:hover { border-color: #444 !important; }
+        .pws-card-hover:hover { transform: translateX(3px); }
+        .bar-fill { transition: width 0.6s ease; border-radius: 2px; height: 6px; }
+      `}</style>
+
+      {/* ── Cover / Header ── */}
+      <div style={{ background: "#1A1A1A", borderBottom: "1px solid #2A2A2A", padding: "28px 28px 22px" }}>
+        <div style={{ ...eyebrow(), marginBottom: 8 }}>
+          Field Guide · Caldera County · Couch Co-op Edition
+        </div>
+        <h1 style={{ fontFamily: fontDisp, fontSize: "clamp(22px, 4vw, 36px)", fontWeight: 900, margin: "0 0 6px", letterSpacing: "-0.02em", lineHeight: 1.1 }}>
+          Will & Laura's Guide to<br /><span style={{ color: "#888" }}>PowerWash Simulator 2</span>
+        </h1>
+        <p style={{ fontSize: 13, color: "#999", margin: "10px 0 14px", fontFamily: fontBody, maxWidth: 560 }}>
+          Three parts · everything the game won't explain.
+        </p>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 6, fontFamily: fontMono, fontSize: 10 }}>
+          {parts.map(p => (
+            <span key={p.id} style={{ color: p.color, letterSpacing: "0.1em", padding: "3px 10px", border: `1px solid ${p.color}55`, borderRadius: 3 }}>
+              {p.numeral} · {p.label.toUpperCase()}
+            </span>
+          ))}
+        </div>
+      </div>
+
+      {/* ── Part Nav ── */}
+      <div style={{ display: "flex", borderBottom: "1px solid #2A2A2A" }}>
+        {parts.map(p => (
+          <button key={p.id} className="pws-btn" onClick={() => setPart(p.id)}
+            style={{
+              flex: 1, padding: "16px 12px",
+              background: part === p.id ? p.bg : "transparent",
+              color: part === p.id ? p.accent : "#666",
+              borderBottom: part === p.id ? `3px solid ${p.color}` : "3px solid transparent",
+              borderTop: "none", borderLeft: "none",
+              borderRight: "1px solid #2A2A2A",
+              fontFamily: fontMono, letterSpacing: "0.12em", textTransform: "uppercase",
+              display: "flex", flexDirection: "column", alignItems: "center", gap: 2,
+            }}>
+            <span style={{ fontSize: 9, opacity: 0.7 }}>Part {p.numeral}</span>
+            <span style={{ fontSize: 11, fontWeight: 500 }}>{p.label}</span>
+          </button>
+        ))}
+      </div>
+
+      {/* ── Body ── */}
+      <div style={{ padding: "26px 24px 32px", maxWidth: 880, margin: "0 auto" }}>
+
+        {/* PART I · EQUIPMENT */}
+        {part === "equipment" && (
+          <div>
+            {partHeader("I", "Equipment", "Catalog of every washer, nozzle, and accessory in Caldera County. Specs only — no opinions.", "#A8B5C5")}
+
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 14, marginBottom: 4, fontFamily: fontMono, fontSize: 10, color: "#666", letterSpacing: "0.08em" }}>
+              <span>§1 Pressure Washers</span><span>·</span>
+              <span>§2 Nozzles</span><span>·</span>
+              <span>§3 SwirlForce</span><span>·</span>
+              <span>§4 Extensions</span>
+            </div>
+
+            {sectionHeader("1", "Pressure Washers", "#A8B5C5")}
+
+            <div style={{ display: "flex", gap: 8, marginBottom: 14 }}>
+              {["vista", "urban"].map(b => {
+                const l = washerLines[b];
+                const active = brand === b;
+                return (
+                  <button key={b} className="pws-btn" onClick={() => setBrand(b)}
+                    style={{
+                      flex: 1, padding: "12px 14px", borderRadius: 5, textAlign: "left",
+                      background: active ? l.bg : "#161616",
+                      border: `1px solid ${active ? l.color : "#2A2A2A"}`,
+                    }}>
+                    <div style={{ fontFamily: fontMono, fontSize: 10, color: active ? l.accent : "#444", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 3 }}>{l.name}</div>
+                    <div style={{ fontFamily: fontDisp, fontSize: 15, fontWeight: 700, color: active ? l.color : "#666" }}>{active ? l.verdict.replace("Best for: ", "") : l.tagline}</div>
+                  </button>
+                );
+              })}
+            </div>
+
+            <div style={{ background: line.bg, border: `1px solid ${line.color}33`, borderRadius: 6, padding: "18px 22px", marginBottom: 16, display: "flex", flexWrap: "wrap", gap: 12, alignItems: "flex-start", justifyContent: "space-between" }}>
+              <div>
+                <div style={{ fontFamily: fontDisp, fontSize: 22, fontWeight: 700, color: line.accent }}>{line.name}</div>
+                <div style={{ fontFamily: fontBody, fontSize: 13, color: line.accent + "CC", marginTop: 3 }}>{line.tagline}</div>
+              </div>
+              <div style={{ background: line.color, color: "white", padding: "8px 14px", borderRadius: 4, fontFamily: fontMono, fontSize: 10, letterSpacing: "0.1em", textAlign: "center", alignSelf: "center", textTransform: "uppercase" }}>
+                {line.verdict}
+              </div>
+            </div>
+
+            <div style={{ ...eyebrow(), marginBottom: 8 }}>{line.name} · tier ladder</div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 5, marginBottom: 8 }}>
+              {line.tiers.map((w, i) => {
+                const ts = tierStyle[w.tier];
+                return (
+                  <div key={i} className="pws-row"
+                    style={{ background: ts.bg, border: `1px solid ${ts.border}`, borderRadius: 5, padding: "11px 14px", display: "flex", alignItems: "center", gap: 14, flexWrap: "wrap" }}>
+                    <div style={{ fontFamily: fontMono, fontSize: 9, color: "#444", minWidth: 28 }}>#{(i+1).toString().padStart(2,"0")}</div>
+                    <div style={{ fontFamily: fontMono, fontSize: 10, color: ts.label, letterSpacing: "0.1em", textTransform: "uppercase", minWidth: 50 }}>{w.tier}</div>
+                    <div style={{ fontFamily: fontDisp, fontSize: 14, fontWeight: 700, color: "#F0E8D8", flex: "1 0 140px" }}>{w.name}</div>
+                    <div style={{ fontFamily: fontMono, fontSize: 12, color: line.color, minWidth: 64 }}>{w.cost}</div>
+                    <div style={{ fontFamily: fontMono, fontSize: 10, color: "#444", minWidth: 48 }}>{w.stars}</div>
+                    <div style={{ fontSize: 11, color: "#888", flex: "2 0 160px", lineHeight: 1.5, fontFamily: fontBody }}>{w.note}</div>
+                  </div>
+                );
+              })}
+            </div>
+            <div style={{ fontFamily: fontMono, fontSize: 10, color: "#444", letterSpacing: "0.04em" }}>↳ Old washers sell for full price.</div>
+
+            <div style={{ ...eyebrow(), marginTop: 18, marginBottom: 8 }}>Per-washer stat upgrades · what they do</div>
+            <div style={{ background: "#161616", border: "1px solid #2A2A2A", borderRadius: 5, overflow: "hidden" }}>
+              {washerStats.map((s, i) => (
+                <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 14, padding: "11px 14px", borderBottom: i < washerStats.length - 1 ? "1px solid #2A2A2A" : "none", flexWrap: "wrap" }}>
+                  <div style={{ fontFamily: fontDisp, fontSize: 14, fontWeight: 700, color: "#CFCFCF", minWidth: 110 }}>{s.stat}</div>
+                  <div style={{ fontSize: 12, color: "#999", flex: 1, lineHeight: 1.55, minWidth: 200, fontFamily: fontBody }}>{s.desc}</div>
+                </div>
+              ))}
+            </div>
+
+            {sectionHeader("2", "Nozzles", "#A8B5C5")}
+            <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
+              {nozzles.map((n, i) => (
+                <div key={i} className="pws-row pws-card-hover"
+                  style={{ background: "#161616", border: "1px solid #2A2A2A", borderLeft: `4px solid ${n.color}`, borderRadius: "0 5px 5px 0", padding: "11px 14px" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", marginBottom: 4 }}>
+                    <div style={{ fontFamily: fontMono, fontSize: 9, color: "#444", minWidth: 28 }}>#{(i+1).toString().padStart(2,"0")}</div>
+                    <div style={{ fontFamily: fontDisp, fontSize: 14, fontWeight: 700, color: "#F0E8D8", flex: "1 0 130px" }}>{n.name}</div>
+                    <span style={{ fontFamily: fontMono, fontSize: 10, color: "#666", letterSpacing: "0.04em" }}>Best for: {n.use}</span>
+                  </div>
+                  <div style={{ fontSize: 12, color: "#999", lineHeight: 1.55, paddingLeft: 38, fontFamily: fontBody }}>{n.desc}</div>
+                </div>
+              ))}
+            </div>
+
+            {sectionHeader("3", "SwirlForce Surf Ace", "#A8B5C5")}
+            <div style={{ background: "#161616", border: "1px solid #2A2A2A", borderRadius: 5, padding: "14px 16px", marginBottom: 10 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8, flexWrap: "wrap" }}>
+                <div style={{ fontFamily: fontDisp, fontSize: 16, fontWeight: 700, color: "#F0E8D8" }}>SwirlForce Surf Ace</div>
+                <span style={{ fontFamily: fontMono, fontSize: 11, color: "#10B981" }}>{swirlforce.cost}</span>
+              </div>
+              <p style={{ fontSize: 13, color: "#999", lineHeight: 1.6, margin: 0, fontFamily: fontBody }}>{swirlforce.what}</p>
+            </div>
+
+            <div style={{ ...eyebrow(), marginBottom: 8 }}>SwirlForce upgrades</div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
+              {swirlforce.upgrades.map((u, i) => (
+                <div key={i} className="pws-row" style={{ background: "#161616", border: "1px solid #2A2A2A", borderRadius: 5, padding: "11px 14px" }}>
+                  <div style={{ fontFamily: fontDisp, fontSize: 13, fontWeight: 700, color: "#CFCFCF", marginBottom: 4 }}>{u.name}</div>
+                  <div style={{ fontSize: 12, color: "#999", lineHeight: 1.55, fontFamily: fontBody }}>{u.desc}</div>
+                </div>
+              ))}
+            </div>
+
+            {sectionHeader("4", "Extensions", "#A8B5C5")}
+            <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
+              {extensions.map((e, i) => (
+                <div key={i} className="pws-row" style={{ background: "#161616", border: "1px solid #2A2A2A", borderRadius: 5, padding: "11px 14px" }}>
+                  <div style={{ display: "flex", gap: 14, alignItems: "baseline", flexWrap: "wrap" }}>
+                    <div style={{ fontFamily: fontMono, fontSize: 9, color: "#444", minWidth: 28 }}>#{(i+1).toString().padStart(2,"0")}</div>
+                    <div style={{ fontFamily: fontDisp, fontSize: 14, fontWeight: 700, color: "#F0E8D8", flex: "0 0 200px" }}>{e.name}</div>
+                    <div style={{ fontSize: 12, color: "#999", flex: 1, lineHeight: 1.55, minWidth: 200, fontFamily: fontBody }}>{e.desc}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div style={{ fontFamily: fontMono, fontSize: 10, color: "#444", marginTop: 8, letterSpacing: "0.04em", lineHeight: 1.6 }}>
+              ↳ All extensions reduce area-of-effect slightly. Cost ratio: short 1× · long 2× · extra long 4×.<br />
+              ↳ Some levels provide ladders, scaffolds, scissor lifts, or abseiling apparatus — substitutes for the Extra Long Extension on those levels.
+            </div>
+          </div>
+        )}
+
+        {/* PART II · TACTICS */}
+        {part === "tactics" && (
+          <div>
+            {partHeader("II", "Field Tactics", "Priorities, verdicts, and what to do with the equipment from Part I.", "#D9B36A")}
+
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 14, marginBottom: 4, fontFamily: fontMono, fontSize: 10, color: "#666", letterSpacing: "0.08em" }}>
+              <span>§1 Brand choice</span><span>·</span>
+              <span>§2 Stat priority</span><span>·</span>
+              <span>§3 Nozzle priority</span><span>·</span>
+              <span>§4 Extensions</span><span>·</span>
+              <span>§5 SwirlForce</span><span>·</span>
+              <span>§6 Couch co-op</span>
+            </div>
+
+            {sectionHeader("1", "Choose your brand and commit", "#D9B36A")}
+            {["vista", "urban"].map(b => {
+              const l = washerLines[b];
+              return (
+                <div key={b} style={{ background: "#161616", border: `1px solid ${l.color}33`, borderRadius: 6, padding: "16px 18px", marginBottom: 10 }}>
+                  <div style={{ fontFamily: fontDisp, fontSize: 16, fontWeight: 700, color: l.color, marginBottom: 12 }}>{l.name}</div>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 18 }}>
+                    <div>
+                      <div style={{ ...eyebrow("#16A34A"), marginBottom: 8 }}>Strengths</div>
+                      {brandPros[b].map((p, i) => (
+                        <div key={i} style={{ display: "flex", gap: 8, marginBottom: 7, alignItems: "flex-start" }}>
+                          <span style={{ color: "#16A34A", flexShrink: 0, fontSize: 13, lineHeight: 1.4 }}>✓</span>
+                          <div style={{ fontSize: 12, color: "#CCC", lineHeight: 1.5, fontFamily: fontBody }}>{p}</div>
+                        </div>
+                      ))}
+                    </div>
+                    <div>
+                      <div style={{ ...eyebrow("#DC2626"), marginBottom: 8 }}>Limitations</div>
+                      {brandCons[b].map((c, i) => (
+                        <div key={i} style={{ display: "flex", gap: 8, marginBottom: 7, alignItems: "flex-start" }}>
+                          <span style={{ color: "#DC2626", flexShrink: 0, fontSize: 13, lineHeight: 1.4 }}>✕</span>
+                          <div style={{ fontSize: 12, color: "#CCC", lineHeight: 1.5, fontFamily: fontBody }}>{c}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+            <div style={{ background: "#1A1A1A", border: "1px solid #2A2A2A", borderLeft: "3px solid #D9B36A", borderRadius: "0 5px 5px 0", padding: "12px 16px", fontSize: 12, color: "#CCC", lineHeight: 1.55, fontFamily: fontBody }}>
+              <span style={{ ...eyebrow("#D9B36A"), marginRight: 8 }}>Verdict</span>
+              {brandVerdict}
+            </div>
+
+            {sectionHeader("2", "Stat upgrade priority", "#D9B36A")}
+            <div style={{ background: "#161616", border: "1px solid #2A2A2A", borderRadius: 5, overflow: "hidden" }}>
+              {statPriority.map((su, i) => (
+                <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 14, padding: "12px 14px", borderBottom: i < statPriority.length - 1 ? "1px solid #2A2A2A" : "none", flexWrap: "wrap" }}>
+                  <div style={{ fontFamily: fontDisp, fontSize: 14, fontWeight: 700, color: su.color, minWidth: 100 }}>{su.stat}</div>
+                  <span style={{ fontFamily: fontMono, fontSize: 10, color: su.color, background: su.color + "18", padding: "2px 8px", borderRadius: 3, letterSpacing: "0.06em", alignSelf: "center", minWidth: 60, textAlign: "center" }}>{su.priority}</span>
+                  <div style={{ fontSize: 12, color: "#999", flex: 1, lineHeight: 1.55, minWidth: 200, fontFamily: fontBody }}>{su.desc}</div>
+                </div>
+              ))}
+            </div>
+            <div style={{ fontFamily: fontMono, fontSize: 10, color: "#444", marginTop: 8, letterSpacing: "0.04em" }}>↳ Max Pressure and Flow Rate before buying the next tier.</div>
+
+            {sectionHeader("3", "Nozzle priorities", "#D9B36A")}
+            <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
+              {nozzlePriority.map((n, i) => (
+                <div key={i} className="pws-row pws-card-hover" style={{ background: "#161616", border: "1px solid #2A2A2A", borderLeft: `3px solid ${n.pColor}`, borderRadius: "0 5px 5px 0", padding: "10px 14px" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+                    <div style={{ fontFamily: fontDisp, fontSize: 13, fontWeight: 700, color: "#F0E8D8", flex: "1 0 140px" }}>{n.name}</div>
+                    <span style={{ fontFamily: fontMono, fontSize: 10, color: n.pColor, background: n.pColor + "18", padding: "2px 8px", borderRadius: 3, letterSpacing: "0.06em" }}>{n.priority}</span>
+                  </div>
+                  {n.note && <div style={{ fontSize: 12, color: "#999", marginTop: 5, lineHeight: 1.55, fontFamily: fontBody }}>{n.note}</div>}
+                </div>
+              ))}
+            </div>
+
+            {sectionHeader("4", "Extension verdicts", "#D9B36A")}
+            <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
+              {extensionVerdicts.map((e, i) => (
+                <div key={i} className="pws-row pws-card-hover" style={{ background: "#161616", border: "1px solid #2A2A2A", borderLeft: `3px solid ${e.vColor}`, borderRadius: "0 5px 5px 0", padding: "11px 14px" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", marginBottom: 4 }}>
+                    <div style={{ fontFamily: fontDisp, fontSize: 14, fontWeight: 700, color: "#F0E8D8", flex: "1 0 160px" }}>{e.name}</div>
+                    <span style={{ fontFamily: fontMono, fontSize: 10, color: e.vColor, background: e.vColor + "22", padding: "2px 8px", borderRadius: 3, letterSpacing: "0.06em" }}>{e.verdict}</span>
+                  </div>
+                  <div style={{ fontSize: 12, color: "#999", lineHeight: 1.55, fontFamily: fontBody }}>{e.rationale}</div>
+                </div>
+              ))}
+            </div>
+
+            {sectionHeader("5", "SwirlForce strategy", "#D9B36A")}
+            <ol style={{ margin: 0, padding: 0, listStyle: "none", display: "flex", flexDirection: "column", gap: 5 }}>
+              {swirlforceTactics.map((t, i) => (
+                <li key={i} style={{ background: "#161616", border: "1px solid #2A2A2A", borderLeft: "3px solid #10B981", borderRadius: "0 5px 5px 0", padding: "11px 14px", display: "flex", gap: 12, alignItems: "flex-start" }}>
+                  <span style={{ fontFamily: fontMono, fontSize: 11, color: "#10B981", minWidth: 18 }}>{i + 1}.</span>
+                  <span style={{ fontSize: 12, color: "#CCC", lineHeight: 1.55, fontFamily: fontBody }}>{t}</span>
+                </li>
+              ))}
+            </ol>
+
+            {sectionHeader("6", "Couch co-op tactics", "#D9B36A")}
+            <div style={{ background: "#180900", border: "1px solid #F9731644", borderRadius: 5, padding: "13px 16px", marginBottom: 10 }}>
+              <div style={{ ...eyebrow("#F97316"), marginBottom: 6 }}>Same couch, same screen</div>
+              <p style={{ fontSize: 13, color: "#AAA", lineHeight: 1.6, margin: 0, fontFamily: fontBody }}>
+                Communication is free here — point at the screen, call zones, react instantly. These tactics assume that.
+              </p>
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
+              {coopTips.map((t, i) => (
+                <div key={i} className="pws-row pws-card-hover" style={{ background: "#161616", border: "1px solid #2A2A2A", borderLeft: "3px solid #F97316", borderRadius: "0 5px 5px 0", padding: "11px 14px", display: "flex", gap: 12, alignItems: "flex-start" }}>
+                  <span style={{ fontSize: 16, flexShrink: 0, lineHeight: 1.3 }}>{t.icon}</span>
+                  <div>
+                    <div style={{ fontFamily: fontDisp, fontSize: 13, fontWeight: 700, color: "#F0E8D8", marginBottom: 3 }}>{t.title}</div>
+                    <div style={{ fontSize: 12, color: "#999", lineHeight: 1.55, fontFamily: fontBody }}>{t.desc}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* PART III · CAMPAIGN */}
+        {part === "campaign" && (
+          <div>
+            {partHeader("III", "Campaign", "The most efficient path through Caldera County, plus the economy that constrains it.", "#D27C9E")}
+
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 14, marginBottom: 4, fontFamily: fontMono, fontSize: 10, color: "#666", letterSpacing: "0.08em" }}>
+              <span>§1 Economy</span><span>·</span>
+              <span>§2 The 10-step path</span>
+            </div>
+
+            {sectionHeader("1", "Economy: cash, stars, and the gap", "#D27C9E")}
+            <div style={{ display: "flex", flexDirection: "column", gap: 5, marginBottom: 6 }}>
+              {economy.map((e, i) => (
+                <div key={i} style={{ background: e.bg, border: `1px solid ${e.swatch}33`, borderRadius: 5, padding: "11px 14px", display: "flex", gap: 14, alignItems: "flex-start", flexWrap: "wrap" }}>
+                  <div style={{ fontFamily: fontMono, fontSize: 11, color: e.swatch, minWidth: 150, letterSpacing: "0.04em" }}>{e.label}</div>
+                  <div style={{ fontSize: 12, color: "#BBB", flex: 1, lineHeight: 1.55, minWidth: 200, fontFamily: fontBody }}>{e.desc}</div>
+                </div>
+              ))}
+            </div>
+
+            {sectionHeader("2", "The 10-step optimal path", "#D27C9E")}
+            <p style={{ fontSize: 11, color: "#666", margin: "0 0 12px", fontFamily: fontMono, letterSpacing: "0.04em" }}>↳ Deviating isn't wrong — but this is the most efficient run.</p>
+            <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
+              {plan.map((p) => (
+                <div key={p.step} className="pws-row pws-card-hover" style={{ background: "#161616", border: "1px solid #2A2A2A", borderLeft: `3px solid ${p.color}`, borderRadius: "0 5px 5px 0", padding: "12px 14px", display: "flex", gap: 14, alignItems: "flex-start" }}>
+                  <div style={{ fontFamily: fontMono, fontSize: 16, fontWeight: 500, color: p.color, minWidth: 26, paddingTop: 1, lineHeight: 1 }}>{p.step.toString().padStart(2,"0")}</div>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontFamily: fontDisp, fontSize: 14, fontWeight: 700, color: "#F0E8D8", marginBottom: 4 }}>{p.title}</div>
+                    <div style={{ fontSize: 12, color: "#999", lineHeight: 1.6, fontFamily: fontBody }}>{p.detail}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Quick Reference (visible on every part) */}
+        <div style={{ marginTop: 32, borderTop: "1px solid #2A2A2A", paddingTop: 22 }}>
+          <div style={{ ...eyebrow(), marginBottom: 14 }}>Quick reference · jump to a part</div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: 8, marginBottom: 18 }}>
+            {parts.map((p) => (
+              <div key={p.id} onClick={() => setPart(p.id)}
+                style={{ background: p.id === part ? p.bg : "#161616", border: `1px solid ${p.id === part ? p.color : "#2A2A2A"}`, borderRadius: 4, padding: "12px 14px", cursor: "pointer", transition: "all 0.2s" }}>
+                <div style={{ fontFamily: fontMono, fontSize: 10, color: p.color, letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 4 }}>Part {p.numeral}</div>
+                <div style={{ fontFamily: fontDisp, fontSize: 16, fontWeight: 700, color: p.id === part ? p.accent : "#CFCFCF", marginBottom: 3 }}>{p.label}</div>
+                <div style={{ fontSize: 11, color: p.id === part ? p.accent : "#777", lineHeight: 1.45, fontFamily: fontBody }}>{p.subtitle}</div>
+              </div>
+            ))}
+          </div>
+
+          <div style={{ ...eyebrow(), marginBottom: 10 }}>Common lookups</div>
+          <div style={{ background: "#161616", border: "1px solid #2A2A2A", borderRadius: 5, overflow: "hidden" }}>
+            {quickReference.map((q, i) => {
+              const p = parts.find(x => x.id === q.partId);
+              return (
+                <div key={i} onClick={() => setPart(q.partId)}
+                  style={{ display: "flex", gap: 14, alignItems: "center", padding: "10px 14px", borderBottom: i < quickReference.length - 1 ? "1px solid #222" : "none", cursor: "pointer", flexWrap: "wrap" }}>
+                  <span style={{ fontFamily: fontMono, fontSize: 9, color: p.color, letterSpacing: "0.1em", minWidth: 36 }}>{p.numeral}</span>
+                  <span style={{ fontSize: 12, color: "#CFCFCF", flex: "1 0 200px", fontFamily: fontBody }}>{q.lookup}</span>
+                  <span style={{ fontFamily: fontMono, fontSize: 11, color: "#888", flex: "0 1 auto" }}>{q.answer}</span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+
+      {/* Footer */}
+      <div style={{ borderTop: "1px solid #2A2A2A", padding: "12px 24px", background: "#1A1A1A", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 8 }}>
+        <div style={{ fontFamily: fontMono, fontSize: 10, color: "#3A3A3A", letterSpacing: "0.06em" }}>
+          PWS2 · Caldera County · Couch Co-op Field Guide
+        </div>
+        <div style={{ fontFamily: fontMono, fontSize: 10, color: "#3A3A3A", letterSpacing: "0.1em" }}>
+          Part {parts.find(p => p.id === part)?.numeral} of III
+        </div>
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<PWS2Guide />);
+
+  </script>
+</body>
+</html>
